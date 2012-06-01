@@ -37,7 +37,7 @@ for uvfile in args:
         print uvofile, 'exists, skipping.'
         continue
     uvi = a.miriad.UV(uvfile)
-    if opts.combine: a.scripting.uv_selector(uvi, opts.ant)
+    a.scripting.uv_selector(uvi, opts.ant)
     # Gather all data and each time step
     data,mask,times = {}, {}, []
     for (uvw,t,(i,j)), d, f in uvi.all(raw=True):
@@ -100,7 +100,9 @@ for uvfile in args:
         uvw, t, (i,j) = preamble
         bl = a.miriad.ij2bl(i,j)
         if opts.combine: m = mask.values()[0].values()[0][t]
-        else: m = mask[uv['pol']][bl][t]
+        else: 
+            try: m = mask[uv['pol']][bl][t]
+            except(KeyError): return preamble, data, flags
         return preamble, n.where(m, 0, data), m
 
     del(uvi)
