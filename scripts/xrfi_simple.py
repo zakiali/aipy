@@ -61,28 +61,28 @@ for uvfile in args:
         i, j = a.miriad.bl2ij(bl)
         data_times = data[pol][bl].keys()
         data_times.sort()
-        d = n.array([data[pol][bl][t] for t in data_times])
-        m = n.array([mask[pol][bl][t] for t in data_times])
+        d = n.ma.array([n.ma.array(data[pol][bl][t],mask=mask[pol][bl][t] ) for t in data_times])
+#        m = n.array([mask[pol][bl][t] for t in data_times])
         if opts.df != None:
             ddf = d[:,1:-1] - .5 * (d[:,:-2] + d[:,2:])
             ddf2 = n.abs(ddf)**2
-            sig = n.sqrt(n.median(ddf2, axis=1))
+            sig = n.sqrt(n.ma.median(ddf2, axis=1))
             sig.shape = (sig.size,1)
             m[:,0] |= 1; m[:,-1] |= 1
             m[:,1:-1] |= n.where(ddf2/sig**2 > opts.df**2, 1, 0)
         if opts.dt != None:
             ddt = d[1:-1,:] - .5 * (d[:-2,:] + d[2:,:])
             ddt2 = n.abs(ddt)**2
-            sig = n.sqrt(n.median(ddt2, axis=0))
+            sig = n.sqrt(n.ma.median(ddt2, axis=0))
             sig.shape = (1,sig.size)
             m[0,:] |= 1; m[-1,:] |= 1
             m[1:-1,:] |= n.where(ddt2/sig**2 > opts.dt**2, 1, 0)
         if opts.df == None and opts.dt == None:
             ad = n.abs(d)
-            med = n.median(ad)
-            sig = n.sqrt(n.median(n.abs(ad-med)**2))
+            med = n.ma.median(ad)
+            sig = n.sqrt(n.ma.median(n.abs(ad-med)**2))
             m |= n.where(ad > med + opts.nsig * sig, 1, 0)
-        for i, t in enumerate(data_times): mask[pol][bl][t] |= m[i]
+        for i, t in enumerate(data_times): mask[pol][bl][t] |= d[i].mask 
     if opts.combine:
         new_mask = {}
         for pol in mask:
