@@ -129,6 +129,8 @@ class RadioFixedBody(amp.RadioFixedBody):
         except(KeyError): pass
         try: self.ionref[1] = prms['ddec']
         except(KeyError): pass
+        try: self.mfreq = prms['mfreq']
+        except(KeyError): pass
 
 #  ____           _ _      ____                  _       _ 
 # |  _ \ __ _  __| (_) ___/ ___| _ __   ___  ___(_) __ _| |
