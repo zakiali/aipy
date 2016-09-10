@@ -81,19 +81,19 @@ for uvfile in args:
                 sig = n.sqrt(n.median(ddf2, axis=1))
                 sig.shape = (sig.size,1)
                 m[:,0] |= 1; m[:,-1] |= 1
-                m[:,1:-1] |= n.where(ddf2/sig**2 > opts.df**2, 1, 0)
+                m[:,1:-1] |= n.where(ddf2/sig**2 > opts.df**2, bool(1), bool(0))
             if opts.dt != None:
                 ddt = d[1:-1,:] - .5 * (d[:-2,:] + d[2:,:])
                 ddt2 = n.abs(ddt)**2
                 sig = n.sqrt(n.median(ddt2, axis=0))
                 sig.shape = (1,sig.size)
                 m[0,:] |= 1; m[-1,:] |= 1
-                m[1:-1,:] |= n.where(ddt2/sig**2 > opts.dt**2, 1, 0)
+                m[1:-1,:] |= n.where(ddt2/sig**2 > opts.dt**2, bool(1), bool(0))
             if opts.df == None and opts.dt == None:
                 ad = n.abs(d)
                 med = n.median(ad)
                 sig = n.sqrt(n.median(n.abs(ad-med)**2))
-                m |= n.where(ad > med + opts.nsig * sig, 1, 0)
+                m |= n.where(ad > med + opts.nsig * sig, bool(1), bool(0))
             for i, t in enumerate(data_times): mask[pol][bl][t] |= m[i]
         if opts.combine:
             new_mask = {}
@@ -102,7 +102,7 @@ for uvfile in args:
                 for t in mask[pol][bl]:
                     new_mask[t] = new_mask.get(t,0)+mask[pol][bl][t].astype(n.int)
             for t in new_mask:
-                m = n.where(new_mask[t] >= opts.thresh, 1, 0)
+                m = n.where(new_mask[t] >= opts.thresh, bool(1), bool(0))
                 for pol in mask:
                   for bl in mask[pol]:
                     mask[pol][bl][t] = m
